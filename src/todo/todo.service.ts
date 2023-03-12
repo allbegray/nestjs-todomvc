@@ -14,8 +14,14 @@ export class TodoService {
     });
   }
 
-  findAll(): Promise<Todo[]> {
-    return this.prisma.todo.findMany({});
+  findAll(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.TodoWhereUniqueInput;
+    where?: Prisma.TodoWhereInput;
+    orderBy?: Prisma.TodoOrderByWithRelationInput;
+  }): Promise<Todo[]> {
+    return this.prisma.todo.findMany(params);
   }
 
   add(data: Prisma.TodoCreateInput): Promise<Todo> {
