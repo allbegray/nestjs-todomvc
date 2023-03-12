@@ -1,40 +1,43 @@
 import { Injectable } from '@nestjs/common';
-import { Todo } from './todo';
-import { TodoForm } from './form/TodoForm';
+import { PrismaService } from '../prisma.service';
+import { Todo, Prisma } from '@prisma/client';
 
 @Injectable()
 export class TodoService {
-  seq = 0;
-  todos = new Map<number, Todo>();
+  constructor(private prisma: PrismaService) {}
 
-  findAll(): Array<Todo> {
-    return [...this.todos.values()];
+  async todo(
+    todoWhereUniqueInput: Prisma.TodoWhereUniqueInput,
+  ): Promise<Todo | null> {
+    return this.prisma.todo.findUnique({
+      where: todoWhereUniqueInput,
+    });
   }
 
-  add(form: TodoForm): Todo {
-    const seq = ++this.seq;
-    const todo = {
-      id: seq,
-      ...form,
-    };
-    this.todos.set(seq, todo);
-    return todo;
+  findAll(): Promise<Todo[]> {
+    return this.prisma.todo.findMany({});
   }
 
-  update(id: number, form: TodoForm): Todo {
-    const todo = {
-      ...this.todos.get(id),
-      ...form,
-    };
-    this.todos.set(id, todo);
-    return todo;
+  add(data: Prisma.TodoCreateInput): Promise<Todo> {
+    return this.prisma.todo.create({
+      data,
+    });
   }
 
-  findOne(id: number): Todo {
-    return this.todos.get(id);
+  update(params: {
+    where: Prisma.TodoWhereUniqueInput;
+    data: Prisma.TodoUpdateInput;
+  }): Promise<Todo> {
+    const { data, where } = params;
+    return this.prisma.todo.update({
+      data,
+      where,
+    });
   }
 
-  deleteById(id: number) {
-    this.todos.delete(id);
+  delete(where: Prisma.TodoWhereUniqueInput): Promise<Todo> {
+    return this.prisma.todo.delete({
+      where,
+    });
   }
 }

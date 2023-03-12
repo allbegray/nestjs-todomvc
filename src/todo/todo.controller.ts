@@ -9,20 +9,21 @@ import {
   Put,
 } from '@nestjs/common';
 import { TodoService } from './todo.service';
-import { Todo } from './todo';
 import { TodoForm } from './form/TodoForm';
+import { Todo } from '@prisma/client';
 
 @Controller('todos')
 export class TodoController {
-  constructor(private readonly todoService: TodoService) {}
+  constructor(private readonly todoService: TodoService) {
+  }
 
   @Get()
-  list(): Array<Todo> {
+  list(): Promise<Todo[]> {
     return this.todoService.findAll();
   }
 
   @Post()
-  add(@Body() form: TodoForm): Todo {
+  add(@Body() form: TodoForm): Promise<Todo> {
     return this.todoService.add(form);
   }
 
@@ -30,17 +31,20 @@ export class TodoController {
   edit(
     @Param('id', new ParseIntPipe()) id: number,
     @Body() form: TodoForm,
-  ): Todo {
-    return this.todoService.update(id, form);
+  ): Promise<Todo> {
+    return this.todoService.update({
+      where: { id },
+      data: { ...form },
+    });
   }
 
   @Get(':id')
-  get(@Param('id', new ParseIntPipe()) id: number): Todo {
-    return this.todoService.findOne(id);
+  get(@Param('id', new ParseIntPipe()) id: number): Promise<Todo> {
+    return this.todoService.todo({ id });
   }
 
   @Delete(':id')
-  remove(@Param('id', new ParseIntPipe()) id: number) {
-    this.todoService.deleteById(id);
+  remove(@Param('id', new ParseIntPipe()) id: number): Promise<Todo> {
+    return this.todoService.delete({ id });
   }
 }
