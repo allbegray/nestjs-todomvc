@@ -11,9 +11,11 @@ datasource db {
 }
 
 model Todo {
-  id         Int      @id @default(autoincrement())
-  title      String
-  is_done    Boolean  @default(false)
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+  id        Int      @id @default(autoincrement())
+  title     String
+  isDone    Boolean  @default(false) @map("id_done")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("todo")
 }
